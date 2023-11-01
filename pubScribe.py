@@ -135,6 +135,8 @@ def connectPubScribe() :
 
 def disconnectPubScribe() :
     if MQTT_ENABLED :
+        topic = "RadonMaster/Status"
+        pubRecord(MQTT, topic, "Offline")
         mqttClient.disconnect()
 
     if BUZZER_ENABLED :
@@ -153,7 +155,18 @@ EMAIL_SMS = 'EMAIL_SMS'
 INFLUX_DB = 'INFLUX_DB'
 BUZZER = 'BUZZER'
 
-
+def ha_discovery(airthings: bool = False):
+    """Generate Home Assistant discovery topics."""
+    mqtt_data = {}
+    mqtt_data["availability"] = {"topic":"RadonMaster/Status","value_template":"{{value}}"}
+    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"RadonMaster"}
+    mqtt_data["state_topic"] = "RadonMaster/PresSensor"
+    mqtt_data["value_template"] = "{{ value_json.data }}"
+    mqtt_data["unit_of_measurement"] = "{{ value_json.uom }}"
+    mqtt_data["device_class"] = "pressure"
+    topic = "homeassistant/sensor/RadonMaster/pressure"
+    mqttClient.publish(topic, json.dumps(mqtt_data))
+      
 #
 # Publish data record
 # dest: [MQTT, CSV_FILE, EMAIL_SMS, INFLUX_DB]
@@ -164,6 +177,7 @@ def pubRecord(dest, topic, data, hdr="") :
     # print("DEST: ", dest, " TOPIC: ", topic, " DATA: ", data, " HDR: ", hdr)
 
     if MQTT_ENABLED and (MQTT in dest) :
+        ha_discovery()
         if not isinstance(data,str) :
             msg = json.dumps(data)
         else :

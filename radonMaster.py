@@ -391,6 +391,7 @@ if __name__ == '__main__':
     if statusMsgEnabled :
         topic = "RadonMaster/Status"
         pubScribe.pubRecord(pubScribe.EMAIL_SMS, topic, "Program start\n" + s)
+        pubScribe.pubRecord(pubScribe.MQTT, topic, "Online")
 
     startTimer()
 
