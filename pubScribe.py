@@ -158,7 +158,7 @@ BUZZER = 'BUZZER'
 def ha_discovery(airthings: bool = False):
     """Generate Home Assistant discovery topics."""
     mqtt_data = {}
-    mqtt_data["availability"] = {"topic":"RadonMaster/Status","value_template":"{{value}}"}
+    mqtt_data["availability"] = [{"topic":"RadonMaster/Status","value_template":"{{value}}"}]
     mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"RadonMaster"}
     mqtt_data["state_topic"] = "RadonMaster/PresSensor"
     mqtt_data["value_template"] = "{{ value_json.data }}"
