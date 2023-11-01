@@ -164,7 +164,7 @@ def ha_discovery(airthings: bool = False):
     mqtt_data["value_template"] = "{{ value_json.data }}"
     mqtt_data["unit_of_measurement"] = "{{ value_json.uom }}"
     mqtt_data["device_class"] = "pressure"
-    topic = "homeassistant/sensor/RadonMaster/pressure"
+    topic = "homeassistant/sensor/RadonMaster/pressure/config"
     mqttClient.publish(topic, json.dumps(mqtt_data))
       
 #
