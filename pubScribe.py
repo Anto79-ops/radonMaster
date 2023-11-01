@@ -165,7 +165,10 @@ def ha_discovery(airthings: bool = False):
     mqtt_data["unit_of_measurement"] = "{{ value_json.uom }}"
     mqtt_data["device_class"] = "pressure"
     topic = "homeassistant/sensor/RadonMaster/pressure/config"
-    mqttClient.publish(topic, json.dumps(mqtt_data))
+    try:
+        mqttClient.publish(topic, json.dumps(mqtt_data))
+    except Exception as error:
+        print("Exception [%s]: %s", type(error).__name__, error)
       
 #
 # Publish data record
