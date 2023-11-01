@@ -323,7 +323,7 @@ def readAirthings() :
             pubScribe.pubRecord(pubScribe.CSV_FILE, topic, data, hdrRow)
 
         topic = "RadonMaster/WavePlus"
-        pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(data))
+        pubScribe.pubRecord(pubScribe.MQTT, topic, data)
         
         results = ""
         for item in wavePlusString :
