@@ -329,8 +329,8 @@ def readAirthings() :
         for item in wavePlusString :
             results += item + "\n"
 
-    except:
-        print("readAirthings() Exception! : %s", Exception)
+    except Exception as error:
+        print("readAirthings() Exception [%s]: %s", type(error).__name__, error)
         waveplus.disconnect()
 
     return results, alert
