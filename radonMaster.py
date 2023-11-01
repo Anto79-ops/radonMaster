@@ -387,6 +387,7 @@ if __name__ == '__main__':
     print(s)
 
     pubScribe.connectPubScribe()
+    pubScribe.ha_discovery()
 
     if statusMsgEnabled :
         topic = "RadonMaster/Status"

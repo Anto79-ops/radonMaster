@@ -158,7 +158,7 @@ BUZZER = 'BUZZER'
 def ha_discovery(airthings: bool = False):
     """Generate Home Assistant discovery topics."""
     mqtt_data = {}
-    mqtt_data["availability"] = [{"topic":"RadonMaster/Status","value_template":"{{value}}"}]
+    mqtt_data["availability"] = [{"topic":"RadonMaster/Status","value_template":"{{ value }}"}]
     mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"RadonMaster"}
     mqtt_data["state_topic"] = "RadonMaster/PresSensor"
     mqtt_data["value_template"] = "{{ value_json.data }}"
@@ -177,7 +177,6 @@ def pubRecord(dest, topic, data, hdr="") :
     # print("DEST: ", dest, " TOPIC: ", topic, " DATA: ", data, " HDR: ", hdr)
 
     if MQTT_ENABLED and (MQTT in dest) :
-        ha_discovery()
         if not isinstance(data,str) :
             msg = json.dumps(data)
         else :
