@@ -43,7 +43,7 @@ LICENSE:
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
+import json
 import sys
 import os
 import time
@@ -59,7 +59,7 @@ import pubScribe
 #
 AIRTHINGS = 0      # Default = 0, which is monitoring and logging disabled
 if AIRTHINGS :
-    import wave    # Added 12/4/2020
+    import airwave    # Added 12/4/2020
 
 #
 # --- User pressure/vacuum sensor configuration parameters ---
@@ -281,6 +281,13 @@ def myTimer() :
         # Append interval data to CSV file
         topic = "RadonMaster/PresSensor"
         pubScribe.pubRecord(pubScribe.CSV_FILE, topic, str(round(sensorAvg,2)), "Inches w.c.")
+
+        # Format and publish MQTT data
+        mqtt_data = {}
+        mqtt_data['data'] = str(round(sensorAvg,2))
+        mqtt_data['uom'] = "in wc"
+        pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(mqtt_data), "Inches w.c.")
+
         """ MS-Excel UNIX seconds to date and time
         date from seconds : =FLOOR(A2/86400,1)+DATE(1970,1,1)
         HH:MM from seconds: =MOD(A2,86400)/86400
@@ -310,14 +317,15 @@ def myTimer() :
     if AIRTHINGS and (not (t.minute % 15)) and (t.second==30) :
         if firstTimeAirthings :
             firstTimeAirthings = 0
-            wave.writeHeaders()
+            airwave.writeHeaders()
 
         try :
-            lastWaveMsg, alert = wave.readAirthings()
+            lastWaveMsg, alert = airwave.readAirthings()
 
             if alert and waveAlertsEnabled :
                 topic = "RadonMaster/Alert"
                 pubScribe.pubRecord(pubScribe.EMAIL_SMS, topic, lastWaveMsg)
+                pubScribe.pubRecord(pubScribe.MQTT, topic, lastWaveMsg)
             else :
                 print(lastWaveMsg)
 

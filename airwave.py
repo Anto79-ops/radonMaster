@@ -53,7 +53,7 @@ LICENSE:
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
+import json
 import sys
 import time
 import os
@@ -321,13 +321,16 @@ def readAirthings() :
         if LOGGING_ENABLED :
             topic = "RadonMaster/WavePlus"
             pubScribe.pubRecord(pubScribe.CSV_FILE, topic, data, hdrRow)
+
+        topic = "RadonMaster/WavePlus"
+        pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(data))
         
         results = ""
         for item in wavePlusString :
             results += item + "\n"
 
-    except :
-        print("readAirthings() Exception!")
+    except:
+        print("readAirthings() Exception! : %s", Exception)
         waveplus.disconnect()
 
     return results, alert
