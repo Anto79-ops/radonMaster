@@ -323,7 +323,16 @@ def readAirthings() :
             pubScribe.pubRecord(pubScribe.CSV_FILE, topic, data, hdrRow)
 
         topic = "RadonMaster/WavePlus"
-        pubScribe.pubRecord(pubScribe.MQTT, topic, data)
+        mqtt_data = {}
+        mqtt_data["radon_st_avg"] = data[0]
+        mqtt_data["radon_lt_avg"] = data[1]
+        mqtt_data["voc"] = data[2]
+        mqtt_data["co2"] = data[3]
+        mqtt_data["temperature"] = data[4]
+        mqtt_data["humidity"] = data[5]
+        mqtt_data["pressure_airthings"] = data[6]
+        mqtt_data["fan"] = data[7]
+        pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(mqtt_data))
         
         results = ""
         for item in wavePlusString :

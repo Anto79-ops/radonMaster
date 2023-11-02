@@ -62,38 +62,35 @@ import sys
 import time
 import datetime
 
+from consts import (
+    AIRTHINGS,
+    CSV_FILE_ENABLED,
+    EMAIL_SMS_ENABLED,
+    IP_PORT_ENABLED,
+    MQTT_ENABLED,
+    MQTT_HOST,
+    MQTT_PORT,
+    MQTT_KEEPALIVE_INTERVAL,
+    INFLUX_DB_ENABLED,
+    INFLUX_HOST,
+    INFLUX_PORT,
+    INFLUX_USER,
+    INFLUX_PASSWORD,
+    INFLUX_DBNAME,
+    BUZZER_ENABLED,
+    buzzerPIN,
+    MQTT,
+    CSV_FILE,
+    EMAIL_SMS,
+    INFLUX_DB,
+    BUZZER,
+    MQTT_SENSORS,
+    AIRTHINGS_SENSORS
+)
+
 
 #
-# USER CONFIGURATION SECTION
-# Select one or more options to enable
-#
-CSV_FILE_ENABLED  = 1
-
-EMAIL_SMS_ENABLED = 1
-
-IP_PORT_ENABLED   = 0    # Future
-
-# MQTT
-MQTT_ENABLED      = 0
-MQTT_HOST         = "localhost"
-MQTT_PORT         = 1883
-MQTT_KEEPALIVE_INTERVAL = 45
-
-# INFLUX_DB
-INFLUX_DB_ENABLED = 0
-INFLUX_HOST       = "192.168.100.11"
-INFLUX_PORT       = 8086               # default port
-INFLUX_USER       = "rpi"              # requires write access
-INFLUX_PASSWORD   = "rpi" 
-INFLUX_DBNAME     = "sensor_data"
-
-# BUZZER
-BUZZER_ENABLED = 0
-buzzerPIN = 18                         # Customize based on your wiring
-
-
-# --- END USER CONFIGURATION ---
-
+# USER CONFIGURATION SECTION MOVED TO const.py
 
 if MQTT_ENABLED :
     import paho.mqtt.client as mqtt
@@ -148,30 +145,42 @@ def disconnectPubScribe() :
 def attachFunction() :
     return
 
-# Destinations
-MQTT = 'MQTT'
-CSV_FILE = 'CSV_FILE'
-EMAIL_SMS = 'EMAIL_SMS'
-INFLUX_DB = 'INFLUX_DB'
-BUZZER = 'BUZZER'
 
-def ha_discovery(serial: str = "00000000", airthings: bool = False):
+def ha_discovery(serial: str = "00000000"):
     """Generate Home Assistant discovery topics."""
     mqtt_data = {}
     mqtt_data["availability_topic"] = "RadonMaster/Status"
-    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"RadonMaster","name": "Radon Master"}
-    mqtt_data["state_topic"] = "RadonMaster/PresSensor"
-    mqtt_data["value_template"] = "{{ value_json.data }}"
-    mqtt_data["unit_of_measurement"] = "in. wc"
-    mqtt_data["device_class"] = "pressure"
-    mqtt_data["object_id"] = "radonmaster_pressure"
+    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"Radon Master","name": "Radon Master"}
     mqtt_data["origin"] = {"name": "Radon Master"}
-    mqtt_data["unique_id"] = f"radonmaster-{serial}-pressure"
-    topic = "homeassistant/sensor/RadonMaster/pressure/config"
-    try:
-        mqttClient.publish(topic, json.dumps(mqtt_data))
-    except Exception as error:
-        print("Exception [%s]: %s", type(error).__name__, error)
+
+    for sensor in MQTT_SENSORS:
+        topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
+        mqtt_data["unique_id"] = f"radonmaster-{serial}-{sensor}"
+        mqtt_data["object_id"] = f"radonmaster_{sensor}"
+        mqtt_data["device_class"] = MQTT_SENSORS[sensor].device_class
+        mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor].unit_of_measurement
+        mqtt_data["value_template"] = MQTT_SENSORS[sensor].value_template
+        mqtt_data["state_topic"] = MQTT_SENSORS[sensor].state_topic
+
+        try:
+            mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
+        except Exception as error:
+            print("Exception [%s]: %s", type(error).__name__, error)
+    
+    if AIRTHINGS:
+        for sensor in AIRTHINGS_SENSORS:
+            topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
+            mqtt_data["unique_id"] = f"radonmaster-{serial}-{sensor}"
+            mqtt_data["object_id"] = f"radonmaster_{sensor}"
+            mqtt_data["device_class"] = AIRTHINGS_SENSORS[sensor].device_class
+            mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor].unit_of_measurement
+            mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor].value_template
+            mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor].state_topic
+
+            try:
+                mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
+            except Exception as error:
+                print("Exception [%s]: %s", type(error).__name__, error)            
       
 #
 # Publish data record

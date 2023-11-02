@@ -56,8 +56,8 @@ import subprocess
 import sensorHnyAbp
 import pubScribe
 
-#
-AIRTHINGS = 0      # Default = 0, which is monitoring and logging disabled
+from consts import AIRTHINGS, HOME_ASSISTANT_DISCOVERY
+
 if AIRTHINGS :
     import airwave    # Added 12/4/2020
 
@@ -284,8 +284,8 @@ def myTimer() :
 
         # Format and publish MQTT data
         mqtt_data = {}
-        mqtt_data['data'] = str(round(sensorAvg,2))
-        mqtt_data['uom'] = "in. wc"
+        mqtt_data['data'] = round(sensorAvg,2)
+        mqtt_data['psi'] = result
         pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(mqtt_data), "Inches w.c.")
 
         """ MS-Excel UNIX seconds to date and time
@@ -387,10 +387,13 @@ if __name__ == '__main__':
     print(s)
 
     pubScribe.connectPubScribe()
-    if AIRTHINGS:
-        import find_wave2c
-        serial = find_wave2c.findWave()
-    pubScribe.ha_discovery(serial)
+
+    if HOME_ASSISTANT_DISCOVERY:
+        serial = None
+        if AIRTHINGS:
+            import find_wave2c
+            serial = find_wave2c.findWave()
+        pubScribe.ha_discovery(serial)
 
     if statusMsgEnabled :
         topic = "RadonMaster/Status"
