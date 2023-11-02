@@ -157,6 +157,7 @@ def ha_discovery(serial: str = "00000000"):
         topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
         mqtt_data["unique_id"] = f"radonmaster-{serial}-{sensor}"
         mqtt_data["object_id"] = f"radonmaster_{sensor}"
+        mqtt_data["name"] = MQTT_SENSORS[sensor]["name"]
         mqtt_data["device_class"] = MQTT_SENSORS[sensor]["device_class"]
         mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor]["unit_of_measurement"]
         mqtt_data["value_template"] = MQTT_SENSORS[sensor]["value_template"]
@@ -175,10 +176,14 @@ def ha_discovery(serial: str = "00000000"):
             topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
             mqtt_data["unique_id"] = f"radonmaster-{serial}-{sensor}"
             mqtt_data["object_id"] = f"radonmaster_{sensor}"
+            mqtt_data["name"] = AIRTHINGS_SENSORS[sensor]["name"]
             mqtt_data["device_class"] = AIRTHINGS_SENSORS[sensor]["device_class"]
             mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor]["unit_of_measurement"]
             mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor]["value_template"]
             mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor]["state_topic"]
+            mqtt_data["suggested_display_precision"] = None
+            if "suggested_display_precision" in MQTT_SENSORS[sensor]:
+                mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]            
 
             try:
                 mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
