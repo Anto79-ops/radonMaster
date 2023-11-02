@@ -285,7 +285,7 @@ def myTimer() :
         # Format and publish MQTT data
         mqtt_data = {}
         mqtt_data['data'] = str(round(sensorAvg,2))
-        mqtt_data['uom'] = "in wc"
+        mqtt_data['uom'] = "in. wc"
         pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(mqtt_data), "Inches w.c.")
 
         """ MS-Excel UNIX seconds to date and time
@@ -387,12 +387,15 @@ if __name__ == '__main__':
     print(s)
 
     pubScribe.connectPubScribe()
-    pubScribe.ha_discovery()
+    if AIRTHINGS:
+        import find_wave2c
+        serial = find_wave2c.findWave()
+    pubScribe.ha_discovery(serial)
 
     if statusMsgEnabled :
         topic = "RadonMaster/Status"
         pubScribe.pubRecord(pubScribe.EMAIL_SMS, topic, "Program start\n" + s)
-        pubScribe.pubRecord(pubScribe.MQTT, topic, "Online")
+        pubScribe.pubRecord(pubScribe.MQTT, topic, "online")
 
     startTimer()
 

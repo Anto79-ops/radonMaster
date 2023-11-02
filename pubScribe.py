@@ -136,7 +136,7 @@ def connectPubScribe() :
 def disconnectPubScribe() :
     if MQTT_ENABLED :
         topic = "RadonMaster/Status"
-        pubRecord(MQTT, topic, "Offline")
+        pubRecord(MQTT, topic, "offline")
         mqttClient.disconnect()
 
     if BUZZER_ENABLED :
@@ -155,15 +155,18 @@ EMAIL_SMS = 'EMAIL_SMS'
 INFLUX_DB = 'INFLUX_DB'
 BUZZER = 'BUZZER'
 
-def ha_discovery(airthings: bool = False):
+def ha_discovery(serial: str = "00000000", airthings: bool = False):
     """Generate Home Assistant discovery topics."""
     mqtt_data = {}
-    mqtt_data["availability"] = [{"topic":"RadonMaster/Status","value_template":"{{ value }}"}]
-    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"RadonMaster"}
+    mqtt_data["availability_topic"] = "RadonMaster/Status"
+    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"RadonMaster","name": "Radon Master"}
     mqtt_data["state_topic"] = "RadonMaster/PresSensor"
     mqtt_data["value_template"] = "{{ value_json.data }}"
-    mqtt_data["unit_of_measurement"] = "{{ value_json.uom }}"
+    mqtt_data["unit_of_measurement"] = "in. wc"
     mqtt_data["device_class"] = "pressure"
+    mqtt_data["object_id"] = "radonmaster_pressure"
+    mqtt_data["origin"] = {"name": "Radon Master"}
+    mqtt_data["unique_id"] = f"radonmaster-{serial}-pressure"
     topic = "homeassistant/sensor/RadonMaster/pressure/config"
     try:
         mqttClient.publish(topic, json.dumps(mqtt_data))
