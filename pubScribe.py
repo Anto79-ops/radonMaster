@@ -182,8 +182,8 @@ def ha_discovery(serial: str = "00000000"):
             mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor]["value_template"]
             mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor]["state_topic"]
             mqtt_data["suggested_display_precision"] = None
-            if "suggested_display_precision" in MQTT_SENSORS[sensor]:
-                mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]            
+            if "suggested_display_precision" in AIRTHINGS_SENSORS[sensor]:
+                mqtt_data["suggested_display_precision"] = AIRTHINGS_SENSORS[sensor]["suggested_display_precision"]            
 
             try:
                 mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
