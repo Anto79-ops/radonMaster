@@ -150,17 +150,17 @@ def ha_discovery(serial: str = "00000000"):
     """Generate Home Assistant discovery topics."""
     mqtt_data = {}
     mqtt_data["availability_topic"] = "RadonMaster/Status"
-    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"Radon Master","name": "Radon Master"}
+    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"Radon Master","name": "Radon Master", "model": "Radon Master"}
     mqtt_data["origin"] = {"name": "Radon Master"}
 
     for sensor in MQTT_SENSORS:
         topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
         mqtt_data["unique_id"] = f"radonmaster-{serial}-{sensor}"
         mqtt_data["object_id"] = f"radonmaster_{sensor}"
-        mqtt_data["device_class"] = MQTT_SENSORS[sensor].device_class
-        mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor].unit_of_measurement
-        mqtt_data["value_template"] = MQTT_SENSORS[sensor].value_template
-        mqtt_data["state_topic"] = MQTT_SENSORS[sensor].state_topic
+        mqtt_data["device_class"] = MQTT_SENSORS[sensor]["device_class"]
+        mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor]["unit_of_measurement"]
+        mqtt_data["value_template"] = MQTT_SENSORS[sensor]["value_template"]
+        mqtt_data["state_topic"] = MQTT_SENSORS[sensor]["state_topic"]
 
         try:
             mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
@@ -172,10 +172,10 @@ def ha_discovery(serial: str = "00000000"):
             topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
             mqtt_data["unique_id"] = f"radonmaster-{serial}-{sensor}"
             mqtt_data["object_id"] = f"radonmaster_{sensor}"
-            mqtt_data["device_class"] = AIRTHINGS_SENSORS[sensor].device_class
-            mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor].unit_of_measurement
-            mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor].value_template
-            mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor].state_topic
+            mqtt_data["device_class"] = AIRTHINGS_SENSORS[sensor]["device_class"]
+            mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor]["unit_of_measurement"]
+            mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor]["value_template"]
+            mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor]["state_topic"]
 
             try:
                 mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
