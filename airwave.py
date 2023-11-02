@@ -331,7 +331,7 @@ def readAirthings() :
         mqtt_data["temperature"] = data[4]
         mqtt_data["humidity"] = data[5]
         mqtt_data["pressure_airthings"] = data[6]
-        mqtt_data["fan"] = data[7]
+        mqtt_data["fan"] = (data[7] * 100)
         pubScribe.pubRecord(pubScribe.MQTT, topic, json.dumps(mqtt_data))
         
         results = ""

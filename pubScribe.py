@@ -161,6 +161,8 @@ def ha_discovery(serial: str = "00000000"):
         mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor]["unit_of_measurement"]
         mqtt_data["value_template"] = MQTT_SENSORS[sensor]["value_template"]
         mqtt_data["state_topic"] = MQTT_SENSORS[sensor]["state_topic"]
+        if MQTT_SENSORS[sensor]["suggested_display_precision"]:
+            mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]
 
         try:
             mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)

@@ -49,6 +49,7 @@ MQTT_SENSORS = {
         "name": "Pressure",
         "state_topic": "RadonMaster/PresSensor",
         "value_template": "{{ value_json.psi }}",
+        "suggested_display_precision": 4,
     },
     "pressure_inwc": {
         "unit_of_measurement": "in. wc",
