@@ -57,6 +57,7 @@ MQTT_SENSORS = {
         "state_topic": "RadonMaster/PresSensor",
         "value_template": "{{ value_json.data }}",
         "device_class": None,
+        "suggested_display_precision": 2,
     }
 }
 
@@ -67,6 +68,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.radon_st_avg }}",
         "device_class": None,
+        "suggested_display_precision": 2,
     },
     "radon_lt_avg": {
         "unit_of_measurement": "Bq/m3",
@@ -74,6 +76,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.radon_lt_avg }}",
         "device_class": None,
+        "suggested_display_precision": 2,
     },
     "voc": {
         "unit_of_measurement": "ppb",
@@ -81,6 +84,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.voc }}",
         "device_class": "volatile_organic_compounds_parts",
+        "suggested_display_precision": 2,
     },
     "co2": {
         "unit_of_measurement": "ppm",
@@ -88,6 +92,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.co2 }}",
         "device_class": "carbon_dioxide",
+        "suggested_display_precision": 2,
     },
     "temperature": {
         "unit_of_measurement": "°C",
@@ -95,6 +100,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.temperature }}",
         "device_class": "temperature",
+        "suggested_display_precision": 1,
     },                
     "humidity": {
         "unit_of_measurement": "%",
@@ -102,6 +108,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.humidity }}",
         "device_class": "humidity",
+        "suggested_display_precision": 0,
     },
     "pressure_airthings": {
         "unit_of_measurement": "hPa",
@@ -109,6 +116,7 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.pressure_airthings }}",
         "device_class": "pressure",
+        "suggested_display_precision": 2,
     },     
     "fan": {
         "unit_of_measurement": "%",
@@ -116,5 +124,6 @@ AIRTHINGS_SENSORS = {
         "state_topic": "RadonMaster/WavePlus",
         "value_template": "{{ value_json.fan }}",
         "device_class": None,
+        "suggested_display_precision": 0,
     },          
 }

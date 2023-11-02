@@ -162,9 +162,7 @@ def ha_discovery(serial: str = "00000000"):
         mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor]["unit_of_measurement"]
         mqtt_data["value_template"] = MQTT_SENSORS[sensor]["value_template"]
         mqtt_data["state_topic"] = MQTT_SENSORS[sensor]["state_topic"]
-        mqtt_data["suggested_display_precision"] = None
-        if "suggested_display_precision" in MQTT_SENSORS[sensor]:
-            mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]
+        mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]
 
         try:
             mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
@@ -181,9 +179,7 @@ def ha_discovery(serial: str = "00000000"):
             mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor]["unit_of_measurement"]
             mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor]["value_template"]
             mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor]["state_topic"]
-            mqtt_data["suggested_display_precision"] = None
-            if "suggested_display_precision" in AIRTHINGS_SENSORS[sensor]:
-                mqtt_data["suggested_display_precision"] = AIRTHINGS_SENSORS[sensor]["suggested_display_precision"]            
+            mqtt_data["suggested_display_precision"] = AIRTHINGS_SENSORS[sensor]["suggested_display_precision"]            
 
             try:
                 mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
