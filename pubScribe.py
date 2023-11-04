@@ -200,7 +200,7 @@ def pubRecord(dest, topic, data, hdr="") :
             msg = json.dumps(data)
         else :
             msg = data
-        mqttClient.publish(topic, msg)
+        mqttClient.publish(topic, msg, 0, True)
 
     if CSV_FILE_ENABLED and (CSV_FILE in dest) :
         writeCsv(topic, data, hdr)
