@@ -113,6 +113,8 @@ def connectPubScribe() :
 
     if MQTT_ENABLED :
         mqttClient.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
+        mqttClient.on_disconnect = onDisconnect()
+        mqttClient.on_connect = onConnect()
 
     if EMAIL_SMS_ENABLED :
         sendEmail.loadJsonFile()
@@ -140,6 +142,19 @@ def disconnectPubScribe() :
         GPIO.cleanup()
 
     return
+
+def onConnect():
+    """Handle mqtt connections."""
+    print("MQTT connected!")
+
+def onDisconnect():
+    """Attempt to reconnect on disconnection."""
+    print("MQTT disconnected attempting to reconnect...")
+    while not mqttClient.is_connected:
+        try:
+            mqttClient.reconnect()
+        except Exception as error:
+            print("Exception [%s]: %s", type(error).__name__, error)
 
 
 def attachFunction() :
