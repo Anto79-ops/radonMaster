@@ -143,9 +143,11 @@ def disconnectPubScribe() :
 
     return
 
+
 def onConnect():
     """Handle mqtt connections."""
     print("MQTT connected!")
+
 
 def onDisconnect():
     """Attempt to reconnect on disconnection."""
