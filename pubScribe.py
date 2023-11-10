@@ -152,9 +152,10 @@ def onConnect():
 def onDisconnect():
     """Attempt to reconnect on disconnection."""
     print("MQTT disconnected attempting to reconnect...")
-    while not mqttClient.is_connected:
+    while not mqttClient.is_connected():
         try:
             mqttClient.reconnect()
+            print("MQTT reconnected!")
         except Exception as error:
             print("Exception [%s]: %s", type(error).__name__, error)
 
