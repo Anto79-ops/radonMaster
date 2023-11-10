@@ -88,6 +88,8 @@ from consts import (
     AIRTHINGS_SENSORS
 )
 
+mqtt_connected = False
+mqtt_reconnect = False
 
 #
 # USER CONFIGURATION SECTION MOVED TO const.py
@@ -134,6 +136,7 @@ def connectPubScribe() :
 
 def disconnectPubScribe() :
     if MQTT_ENABLED :
+        mqtt_reconnect = False
         topic = "RadonMaster/Status"
         pubRecord(MQTT, topic, "offline")
         mqttClient.disconnect()
@@ -147,12 +150,16 @@ def disconnectPubScribe() :
 def onConnect():
     """Handle mqtt connections."""
     print("MQTT connected!")
+    # Set bools to control reconnections
+    mqtt_connected = True
+    mqtt_reconnect = True
 
 
 def onDisconnect():
     """Attempt to reconnect on disconnection."""
+    mqtt_connected = False
     print("MQTT disconnected attempting to reconnect...")
-    while not mqttClient.is_connected():
+    while not mqtt_connected and mqtt_reconnect:
         try:
             mqttClient.reconnect()
             print("MQTT reconnected!")
