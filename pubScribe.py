@@ -96,7 +96,7 @@ mqtt_reconnect = False
 
 if MQTT_ENABLED :
     import paho.mqtt.client as mqtt
-    mqttClient = mqtt.Client("",clean_session=False)
+    mqttClient = mqtt.Client("RadonMaster",clean_session=False)
 
 if EMAIL_SMS_ENABLED :
     import sendEmail
