@@ -117,6 +117,7 @@ def connectPubScribe() :
         mqttClient.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
         mqttClient.on_disconnect = onDisconnect()
         mqttClient.on_connect = onConnect()
+        mqttClient.loop_start()
 
     if EMAIL_SMS_ENABLED :
         sendEmail.loadJsonFile()
