@@ -96,7 +96,7 @@ mqtt_reconnect = False
 
 if MQTT_ENABLED :
     import paho.mqtt.client as mqtt
-    mqttClient = mqtt.Client()
+    mqttClient = mqtt.Client("",clean_session=False)
 
 if EMAIL_SMS_ENABLED :
     import sendEmail
@@ -191,7 +191,7 @@ def ha_discovery(serial: str = "00000000"):
         mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]
 
         try:
-            mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
+            mqttClient.publish(topic, json.dumps(mqtt_data), 1, True)
         except Exception as error:
             print("Exception [%s]: %s", type(error).__name__, error)
     
@@ -208,7 +208,7 @@ def ha_discovery(serial: str = "00000000"):
             mqtt_data["suggested_display_precision"] = AIRTHINGS_SENSORS[sensor]["suggested_display_precision"]            
 
             try:
-                mqttClient.publish(topic, json.dumps(mqtt_data), 0, True)
+                mqttClient.publish(topic, json.dumps(mqtt_data), 1, True)
             except Exception as error:
                 print("Exception [%s]: %s", type(error).__name__, error)            
       
@@ -226,7 +226,7 @@ def pubRecord(dest, topic, data, hdr="") :
             msg = json.dumps(data)
         else :
             msg = data
-        mqttClient.publish(topic, msg, 0, True)
+        mqttClient.publish(topic, msg, 1, True)
 
     if CSV_FILE_ENABLED and (CSV_FILE in dest) :
         writeCsv(topic, data, hdr)
