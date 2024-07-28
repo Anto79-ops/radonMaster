@@ -56,36 +56,38 @@ sudo pip3 install paho-mqtt
 
 """
 
+import datetime
 import json
 import os
 import sys
 import time
-import datetime
 
 from consts import (
     AIRTHINGS,
+    AIRTHINGS_SENSORS,
+    BUZZER,
+    BUZZER_ENABLED,
+    CSV_FILE,
     CSV_FILE_ENABLED,
+    EMAIL_SMS,
     EMAIL_SMS_ENABLED,
-    IP_PORT_ENABLED,
-    MQTT_ENABLED,
-    MQTT_HOST,
-    MQTT_PORT,
-    MQTT_KEEPALIVE_INTERVAL,
+    INFLUX_DB,
     INFLUX_DB_ENABLED,
+    INFLUX_DBNAME,
     INFLUX_HOST,
+    INFLUX_PASSWORD,
     INFLUX_PORT,
     INFLUX_USER,
-    INFLUX_PASSWORD,
-    INFLUX_DBNAME,
-    BUZZER_ENABLED,
-    buzzerPIN,
+    IP_PORT_ENABLED,
     MQTT,
-    CSV_FILE,
-    EMAIL_SMS,
-    INFLUX_DB,
-    BUZZER,
+    MQTT_ENABLED,
+    MQTT_HOST,
+    MQTT_KEEPALIVE_INTERVAL,
+    MQTT_PASSWORD,
+    MQTT_PORT,
     MQTT_SENSORS,
-    AIRTHINGS_SENSORS
+    MQTT_USERNAME,
+    buzzerPIN,
 )
 
 mqtt_connected = False
@@ -94,55 +96,60 @@ mqtt_reconnect = False
 #
 # USER CONFIGURATION SECTION MOVED TO const.py
 
-if MQTT_ENABLED :
+if MQTT_ENABLED:
     import paho.mqtt.client as mqtt
-    mqttClient = mqtt.Client("RadonMaster",clean_session=False)
 
-if EMAIL_SMS_ENABLED :
+    mqttClient = mqtt.Client("RadonMaster", clean_session=False)
+
+if EMAIL_SMS_ENABLED:
     import sendEmail
 
-if INFLUX_DB_ENABLED :
+if INFLUX_DB_ENABLED:
     from influxdb import InfluxDBClient
 
-if BUZZER_ENABLED :
-    import RPi.GPIO as GPIO
+if BUZZER_ENABLED:
     from threading import Timer
 
+    import RPi.GPIO as GPIO
 
-def connectPubScribe() :
+
+def connectPubScribe():
     global mqttClient
     global influxClient
 
-    if MQTT_ENABLED :
+    if MQTT_ENABLED:
+        if MQTT_USERNAME and MQTT_PASSWORD:
+            mqttClient.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
         mqttClient.connect(MQTT_HOST, MQTT_PORT, MQTT_KEEPALIVE_INTERVAL)
         mqttClient.on_disconnect = onDisconnect()
         mqttClient.on_connect = onConnect()
         mqttClient.loop_start()
 
-    if EMAIL_SMS_ENABLED :
+    if EMAIL_SMS_ENABLED:
         sendEmail.loadJsonFile()
         # sendStatus("pubScribe.py", " Program start")
 
-    if INFLUX_DB_ENABLED :
-        influxClient = InfluxDBClient(INFLUX_HOST, INFLUX_PORT, INFLUX_USER, INFLUX_PASSWORD, INFLUX_DBNAME)
+    if INFLUX_DB_ENABLED:
+        influxClient = InfluxDBClient(
+            INFLUX_HOST, INFLUX_PORT, INFLUX_USER, INFLUX_PASSWORD, INFLUX_DBNAME
+        )
 
-    if BUZZER_ENABLED :
+    if BUZZER_ENABLED:
         # GPIO.setwarnings(False)           # Remove warning message
-        GPIO.setmode(GPIO.BCM)              # Set the pin mode to BOARD mode
-        GPIO.setup(buzzerPIN, GPIO.OUT)     # Buzzer is output mode
+        GPIO.setmode(GPIO.BCM)  # Set the pin mode to BOARD mode
+        GPIO.setup(buzzerPIN, GPIO.OUT)  # Buzzer is output mode
 
     return
 
 
-
-def disconnectPubScribe() :
-    if MQTT_ENABLED :
+def disconnectPubScribe():
+    if MQTT_ENABLED:
         mqtt_reconnect = False
         topic = "RadonMaster/Status"
         pubRecord(MQTT, topic, "offline")
         mqttClient.disconnect()
 
-    if BUZZER_ENABLED :
+    if BUZZER_ENABLED:
         GPIO.cleanup()
 
     return
@@ -168,7 +175,7 @@ def onDisconnect():
             print("Exception [%s]: %s", type(error).__name__, error)
 
 
-def attachFunction() :
+def attachFunction():
     return
 
 
@@ -176,7 +183,12 @@ def ha_discovery(serial: str = "00000000"):
     """Generate Home Assistant discovery topics."""
     mqtt_data = {}
     mqtt_data["availability_topic"] = "RadonMaster/Status"
-    mqtt_data["device"] = {"identifiers":["radonmaster"],"manufacturer":"Radon Master","name": "Radon Master", "model": "Radon Master"}
+    mqtt_data["device"] = {
+        "identifiers": ["radonmaster"],
+        "manufacturer": "Radon Master",
+        "name": "Radon Master",
+        "model": "Radon Master",
+    }
     mqtt_data["origin"] = {"name": "Radon Master"}
 
     for sensor in MQTT_SENSORS:
@@ -188,13 +200,15 @@ def ha_discovery(serial: str = "00000000"):
         mqtt_data["unit_of_measurement"] = MQTT_SENSORS[sensor]["unit_of_measurement"]
         mqtt_data["value_template"] = MQTT_SENSORS[sensor]["value_template"]
         mqtt_data["state_topic"] = MQTT_SENSORS[sensor]["state_topic"]
-        mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor]["suggested_display_precision"]
+        mqtt_data["suggested_display_precision"] = MQTT_SENSORS[sensor][
+            "suggested_display_precision"
+        ]
 
         try:
             mqttClient.publish(topic, json.dumps(mqtt_data), 1, True)
         except Exception as error:
             print("Exception [%s]: %s", type(error).__name__, error)
-    
+
     if AIRTHINGS:
         for sensor in AIRTHINGS_SENSORS:
             topic = f"homeassistant/sensor/RadonMaster/{sensor}/config"
@@ -202,57 +216,62 @@ def ha_discovery(serial: str = "00000000"):
             mqtt_data["object_id"] = f"radonmaster_{sensor}"
             mqtt_data["name"] = AIRTHINGS_SENSORS[sensor]["name"]
             mqtt_data["device_class"] = AIRTHINGS_SENSORS[sensor]["device_class"]
-            mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor]["unit_of_measurement"]
+            mqtt_data["unit_of_measurement"] = AIRTHINGS_SENSORS[sensor][
+                "unit_of_measurement"
+            ]
             mqtt_data["value_template"] = AIRTHINGS_SENSORS[sensor]["value_template"]
             mqtt_data["state_topic"] = AIRTHINGS_SENSORS[sensor]["state_topic"]
-            mqtt_data["suggested_display_precision"] = AIRTHINGS_SENSORS[sensor]["suggested_display_precision"]            
+            mqtt_data["suggested_display_precision"] = AIRTHINGS_SENSORS[sensor][
+                "suggested_display_precision"
+            ]
 
             try:
                 mqttClient.publish(topic, json.dumps(mqtt_data), 1, True)
             except Exception as error:
-                print("Exception [%s]: %s", type(error).__name__, error)            
-      
+                print("Exception [%s]: %s", type(error).__name__, error)
+
+
 #
 # Publish data record
 # dest: [MQTT, CSV_FILE, EMAIL_SMS, INFLUX_DB]
 # topic: 'topic/subtopic', 'topic/subtopic/alert', or etc.
 # data: dict, list, or str
 #
-def pubRecord(dest, topic, data, hdr="") :
+def pubRecord(dest, topic, data, hdr=""):
     # print("DEST: ", dest, " TOPIC: ", topic, " DATA: ", data, " HDR: ", hdr)
 
-    if MQTT_ENABLED and (MQTT in dest) :
-        if not isinstance(data,str) :
+    if MQTT_ENABLED and (MQTT in dest):
+        if not isinstance(data, str):
             msg = json.dumps(data)
-        else :
+        else:
             msg = data
         mqttClient.publish(topic, msg, 1, True)
 
-    if CSV_FILE_ENABLED and (CSV_FILE in dest) :
+    if CSV_FILE_ENABLED and (CSV_FILE in dest):
         writeCsv(topic, data, hdr)
 
-    if EMAIL_SMS_ENABLED and (EMAIL_SMS in dest) :
-        if not isinstance(data, str) :
+    if EMAIL_SMS_ENABLED and (EMAIL_SMS in dest):
+        if not isinstance(data, str):
             msg = str(data)
         # if not isinstance(data,str) :
         #     msg = json.dumps(data, indent=4)
-        else :
+        else:
             msg = data
 
         upperTopic = topic.upper()
-        if 'ALERT' in upperTopic :
+        if "ALERT" in upperTopic:
             sendAlert(topic, msg)
-        elif 'STATUS' in upperTopic :
+        elif "STATUS" in upperTopic:
             sendStatus(topic, msg)
 
-    if INFLUX_DB_ENABLED and (INFLUX_DB in dest) :
-        if not isinstance(data,str) :
+    if INFLUX_DB_ENABLED and (INFLUX_DB in dest):
+        if not isinstance(data, str):
             msg = json.dumps(data)
-        else :
+        else:
             msg = data
         influxClient.write_points(msg)
 
-    if BUZZER_ENABLED and (BUZZER in dest) :
+    if BUZZER_ENABLED and (BUZZER in dest):
         buzzerOn(data)
 
     return
@@ -261,38 +280,39 @@ def pubRecord(dest, topic, data, hdr="") :
 #
 # CSV files
 #
-topicFmtStr = {}       # format string for data records in a topic's csv file
-topicFiles = {}        # Dictionary of csv files that exist
+topicFmtStr = {}  # format string for data records in a topic's csv file
+topicFiles = {}  # Dictionary of csv files that exist
 
 #
 # Enables custom format strings per topic when writting csv files
 #
-def addTopicFmtStr(topic, fmtStr) :
+def addTopicFmtStr(topic, fmtStr):
     topicFmtStr[topic] = fmtStr
+
 
 #
 # For new files, create a header row using dict or from hdr
 #
-def addTopicFileHeaders(filename, topic, data, hdr="") :
+def addTopicFileHeaders(filename, topic, data, hdr=""):
     result = ""
 
-    if not (topic in topicFiles) :
+    if not (topic in topicFiles):
         topicFiles[topic] = hdr
-        if not os.path.isfile(filename) :
+        if not os.path.isfile(filename):
             # If csv log file does not exist, write header
-            result = 'UNIX time (s),DateTime,'
+            result = "UNIX time (s),DateTime,"
 
-            if isinstance(data, dict) :
+            if isinstance(data, dict):
                 # print("dict: ", data)
-                result += ",".join("{}".format(k) for k in data)    # keys
+                result += ",".join("{}".format(k) for k in data)  # keys
                 # print(result)
 
-            else :
+            else:
                 # print("Else: ", hdr)
                 result += hdr
                 # print(result)
 
-            result += '\n'
+            result += "\n"
 
     return result
 
@@ -300,34 +320,37 @@ def addTopicFileHeaders(filename, topic, data, hdr="") :
 #
 # Append data to CSV file
 #
-def writeCsv(topic, data, hdr="") :
-    filename = topic.replace('/','_') + ".csv"
+def writeCsv(topic, data, hdr=""):
+    filename = topic.replace("/", "_") + ".csv"
     # print("Filename: ", filename)
 
     s = addTopicFileHeaders(filename, topic, data, hdr)
 
-    s += str(round(time.time())) + "," + datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S,')
+    s += (
+        str(round(time.time()))
+        + ","
+        + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S,")
+    )
 
-    if isinstance(data, dict) :
-        s += ",".join("{}".format(v) for k, v in data.items())             # values
+    if isinstance(data, dict):
+        s += ",".join("{}".format(v) for k, v in data.items())  # values
 
-    elif isinstance(data, list) :
-        if topic in topicFmtStr :
+    elif isinstance(data, list):
+        if topic in topicFmtStr:
             s += topicFmtStr[topic].format(*data)
-        else :
-            s += ('{},'*len(data)).format(*data)
+        else:
+            s += ("{}," * len(data)).format(*data)
 
-    elif isinstance(data, str) :
+    elif isinstance(data, str):
         s += data
 
-    else :
+    else:
         print("Type not supported")
-   
-    # write interval data to csv file
-    with open(filename, "a") as csvFile :
-        csvFile.write(s + '\n')
-        csvFile.close()
 
+    # write interval data to csv file
+    with open(filename, "a") as csvFile:
+        csvFile.write(s + "\n")
+        csvFile.close()
 
 
 #
@@ -337,7 +360,7 @@ def writeCsv(topic, data, hdr="") :
 #
 # Send alert via email to another email or as SMS text
 #
-def sendAlert(subj, msg) :
+def sendAlert(subj, msg):
     msg = time.strftime("%a, %d %b %Y %H:%M:%S \n", time.localtime()) + msg
     sendEmail.send_mail(sendEmail.ALERT_USERID, subj, msg)
 
@@ -345,7 +368,7 @@ def sendAlert(subj, msg) :
 #
 # Send status via email to another email or as SMS text
 #
-def sendStatus(subj, msg) :
+def sendStatus(subj, msg):
     msg = time.strftime("%a, %d %b %Y %H:%M:%S \n", time.localtime()) + msg
     sendEmail.send_mail(sendEmail.STATUS_USERID, subj, msg)
 
@@ -355,59 +378,68 @@ def sendStatus(subj, msg) :
 #
 buzzer = []
 
-def buzzerOn(data) :
-    global buzzer
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S '),"Buzzer On", " F: ", data.get('Frequency', 700),  " DC: ", data.get('Dutycycle', 10),  " Duration(s): ", data.get('Duration',10))
 
-    buzzer = GPIO.PWM(buzzerPIN, data.get('Frequency', 700))    # Default is 700 Hz
-    buzzer.start(data.get('Dutycycle', 10))                      # Default is 10%
-    Timer(data.get('Duration',10), buzzerOff).start()            # Default is 10 seconds
+def buzzerOn(data):
+    global buzzer
+    print(
+        datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S "),
+        "Buzzer On",
+        " F: ",
+        data.get("Frequency", 700),
+        " DC: ",
+        data.get("Dutycycle", 10),
+        " Duration(s): ",
+        data.get("Duration", 10),
+    )
+
+    buzzer = GPIO.PWM(buzzerPIN, data.get("Frequency", 700))  # Default is 700 Hz
+    buzzer.start(data.get("Dutycycle", 10))  # Default is 10%
+    Timer(data.get("Duration", 10), buzzerOff).start()  # Default is 10 seconds
 
 
 #
 # Buzzer Off
 #
-def buzzerOff() :
+def buzzerOff():
     global buzzer
-    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S '), "Buzzer Off")
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S "), "Buzzer Off")
     buzzer.stop()
-
 
 
 #
 # Test / debug
 #
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     print("\nPress CTRL+C to exit...\n")
 
     connectPubScribe()
 
     topic = "Sensor"
-    dictVar = {"Current": 6.4,"Power": 3.2,"Energy": 4.5,"PF": 0.95}
+    dictVar = {"Current": 6.4, "Power": 3.2, "Energy": 4.5, "PF": 0.95}
     pubRecord(CSV_FILE, topic, dictVar)
 
     topic = "Sensor/Alert"
-    listVar = [ 6.4, 3.2, 4.5, 0.95]
-    pubRecord(CSV_FILE, topic, listVar,"Col1,Col2,Col3,Col4")
+    listVar = [6.4, 3.2, 4.5, 0.95]
+    pubRecord(CSV_FILE, topic, listVar, "Col1,Col2,Col3,Col4")
 
     fmtStr = "{:.1f},{:.2f},{:.3f},{:.4f}"
     addTopicFmtStr(topic, fmtStr)
     pubRecord(CSV_FILE, topic, listVar, "Col1,Col2,Col3,Col4")
 
     topic = "Sensor/topic"
-    sVar = '6.4, 3.2, 4.5, 0.95'
+    sVar = "6.4, 3.2, 4.5, 0.95"
     pubRecord(CSV_FILE, topic, sVar, "Col1,Col2,Col3,Col4")
 
     # Test buzzer
-    if BUZZER_ENABLED :
-        pubRecord(BUZZER, "", {'Frequency': 500, 'Dutycycle': 20, 'Duration': 20})
+    if BUZZER_ENABLED:
+        pubRecord(BUZZER, "", {"Frequency": 500, "Dutycycle": 20, "Duration": 20})
         time.sleep(60)
 
         pubRecord(BUZZER, "", {})
         time.sleep(60)
 
-        pubRecord(BUZZER, "", {'Frequency': 900, 'Dutycycle': 30, 'Duration': 40})
+        pubRecord(BUZZER, "", {"Frequency": 900, "Dutycycle": 30, "Duration": 40})
         time.sleep(60)
 
     disconnectPubScribe()

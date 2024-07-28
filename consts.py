@@ -4,43 +4,47 @@ from typing import Final
 # USER CONFIGURATION SECTION
 # Select one or more options to enable
 #
-CSV_FILE_ENABLED  = 1
+CSV_FILE_ENABLED = 1
 
 EMAIL_SMS_ENABLED = 1
 
-IP_PORT_ENABLED   = 0    # Future
+IP_PORT_ENABLED = 0  # Future
 
 # MQTT
-MQTT_ENABLED      = 0
-MQTT_HOST         = "localhost"
-MQTT_PORT         = 1883
+MQTT_ENABLED = 0
+MQTT_HOST = "localhost"
+MQTT_PORT = 1883
 MQTT_KEEPALIVE_INTERVAL = 45
+MQTT_USERNAME = None
+MQTT_PASSWORD = None
 
 # INFLUX_DB
 INFLUX_DB_ENABLED = 0
-INFLUX_HOST       = "192.168.100.11"
-INFLUX_PORT       = 8086               # default port
-INFLUX_USER       = "rpi"              # requires write access
-INFLUX_PASSWORD   = "rpi" 
-INFLUX_DBNAME     = "sensor_data"
+INFLUX_HOST = "192.168.100.11"
+INFLUX_PORT = 8086  # default port
+INFLUX_USER = "rpi"  # requires write access
+INFLUX_PASSWORD = "rpi"
+INFLUX_DBNAME = "sensor_data"
 
 # BUZZER
 BUZZER_ENABLED = 0
-buzzerPIN = 18                         # Customize based on your wiring
+buzzerPIN = 18  # Customize based on your wiring
 
-AIRTHINGS = 0      # Default = 0, which is monitoring and logging disabled
+AIRTHINGS = 0  # Default = 0, which is monitoring and logging disabled
 
-HOME_ASSISTANT_DISCOVERY = 0 # Set to 1 to enable Home Assistant MQTT discovery topic creation
+HOME_ASSISTANT_DISCOVERY = (
+    0  # Set to 1 to enable Home Assistant MQTT discovery topic creation
+)
 
 # --- END USER CONFIGURATION ---
 
 
 # Destinations
-MQTT = 'MQTT'
-CSV_FILE = 'CSV_FILE'
-EMAIL_SMS = 'EMAIL_SMS'
-INFLUX_DB = 'INFLUX_DB'
-BUZZER = 'BUZZER'
+MQTT = "MQTT"
+CSV_FILE = "CSV_FILE"
+EMAIL_SMS = "EMAIL_SMS"
+INFLUX_DB = "INFLUX_DB"
+BUZZER = "BUZZER"
 
 MQTT_SENSORS = {
     "pressure": {
@@ -58,7 +62,7 @@ MQTT_SENSORS = {
         "value_template": "{{ value_json.data }}",
         "device_class": None,
         "suggested_display_precision": 2,
-    }
+    },
 }
 
 AIRTHINGS_SENSORS = {
@@ -101,7 +105,7 @@ AIRTHINGS_SENSORS = {
         "value_template": "{{ value_json.temperature }}",
         "device_class": "temperature",
         "suggested_display_precision": 1,
-    },                
+    },
     "humidity": {
         "unit_of_measurement": "%",
         "name": "Humidity",
@@ -117,7 +121,7 @@ AIRTHINGS_SENSORS = {
         "value_template": "{{ value_json.pressure_airthings }}",
         "device_class": "pressure",
         "suggested_display_precision": 2,
-    },     
+    },
     "fan": {
         "unit_of_measurement": "%",
         "name": "Fan",
@@ -125,5 +129,5 @@ AIRTHINGS_SENSORS = {
         "value_template": "{{ value_json.fan }}",
         "device_class": None,
         "suggested_display_precision": 0,
-    },          
+    },
 }
