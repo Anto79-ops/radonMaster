@@ -29,6 +29,7 @@
 
 import time
 import struct
+from consts import AIRTHINGS_SERIAL
 
 bluePyFound = 1
 
@@ -58,6 +59,9 @@ def findWave() :
 
     if not bluePyFound :
         return 0
+    
+    if AIRTHINGS_SERIAL:
+        return int(AIRTHINGS_SERIAL)
 
     scanner = Scanner().withDelegate(ScanDelegate())
 

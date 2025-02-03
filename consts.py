@@ -36,6 +36,8 @@ HOME_ASSISTANT_DISCOVERY = (
     0  # Set to 1 to enable Home Assistant MQTT discovery topic creation
 )
 
+AIRTHINGS_SERIAL = None # If multiple Airthings sensors, set this to the serial number of the device to monitor
+
 # --- END USER CONFIGURATION ---
 
 
